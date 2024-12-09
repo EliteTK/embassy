@@ -356,6 +356,16 @@ fn pll_enable(instance: PllInstance, enabled: bool) {
     }
 }
 
+mod fixed {
+    pub fn promote(n: u32) -> u64 {
+        (n as u64) << 32
+    }
+
+    pub fn round(n: u64) -> u32 {
+        ((n + (1 << 31)) >> 32) as u32
+    }
+}
+
 fn init_pll(instance: PllInstance, config: Option<Pll>, input: &PllInput) -> PllOutput {
     // Disable PLL
     pll_enable(instance, false);
@@ -367,12 +377,12 @@ fn init_pll(instance: PllInstance, config: Option<Pll>, input: &PllInput) -> Pll
         PllSource::HSI => input.hsi,
     };
 
-    let pll_src = pll_src.unwrap();
+    let pll_src = fixed::promote(pll_src.unwrap().0);
 
-    let in_freq = pll_src / pll.prediv;
-    assert!(max::PLL_IN.contains(&in_freq));
-    let vco_freq = in_freq * pll.mul;
-    assert!(max::PLL_VCO.contains(&vco_freq));
+    let in_freq = pll_src / pll.prediv.to_bits() as u64;
+    assert!(max::PLL_IN.contains(&Hertz(fixed::round(in_freq))));
+    let vco_freq = in_freq * pll.mul.to_bits() as u64;
+    assert!(max::PLL_VCO.contains(&Hertz(fixed::round(vco_freq))));
 
     // stm32f2 plls are like swiss cheese
     #[cfg(stm32f2)]
@@ -386,9 +396,11 @@ fn init_pll(instance: PllInstance, config: Option<Pll>, input: &PllInput) -> Pll
         }
     }
 
-    let p = pll.divp.map(|div| vco_freq / div);
-    let q = pll.divq.map(|div| vco_freq / div);
-    let r = pll.divr.map(|div| vco_freq / div);
+    let p = pll
+        .divp
+        .map(|div| Hertz(fixed::round(vco_freq / (div.to_bits() as u64 * 2 + 2))));
+    let q = pll.divq.map(|div| Hertz(fixed::round(vco_freq / div.to_bits() as u64)));
+    let r = pll.divr.map(|div| Hertz(fixed::round(vco_freq / div.to_bits() as u64)));
 
     macro_rules! write_fields {
         ($w:ident) => {
