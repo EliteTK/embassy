@@ -4,6 +4,7 @@ use super::low_level::{CountingMode, InputCaptureMode, InputTISelection, SlaveMo
 use super::{Ch1, Ch2, Channel, GeneralInstance4Channel, TimerPin};
 use crate::gpio::{AfType, Pull};
 use crate::time::Hertz;
+use crate::timer::low_level::mode;
 use crate::Peri;
 
 /// PWM Input driver.
@@ -13,7 +14,7 @@ use crate::Peri;
 /// Double check your chips reference manual
 pub struct PwmInput<'d, T: GeneralInstance4Channel> {
     channel: Channel,
-    inner: Timer<'d, T>,
+    inner: Timer<'d, T, mode::NoIrq>,
 }
 
 impl<'d, T: GeneralInstance4Channel> PwmInput<'d, T> {

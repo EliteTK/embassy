@@ -8,6 +8,7 @@ use super::low_level::Timer;
 pub use super::{Ch1, Ch2};
 use super::{GeneralInstance4Channel, TimerPin};
 use crate::gpio::{AfType, AnyPin, Pull};
+use crate::timer::low_level::mode;
 use crate::timer::TimerChannel;
 use crate::Peri;
 
@@ -53,7 +54,7 @@ impl SealedQeiChannel for Ch2 {}
 
 /// Quadrature decoder driver.
 pub struct Qei<'d, T: GeneralInstance4Channel> {
-    inner: Timer<'d, T>,
+    inner: Timer<'d, T, mode::NoIrq>,
 }
 
 impl<'d, T: GeneralInstance4Channel> Qei<'d, T> {

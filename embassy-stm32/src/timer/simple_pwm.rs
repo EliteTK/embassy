@@ -9,6 +9,7 @@ use super::{Ch1, Ch2, Ch3, Ch4, Channel, GeneralInstance4Channel, TimerBits, Tim
 use crate::gpio::Pull;
 use crate::gpio::{AfType, AnyPin, OutputType, Speed};
 use crate::time::Hertz;
+use crate::timer::low_level::mode;
 use crate::Peri;
 
 /// PWM pin wrapper.
@@ -72,7 +73,7 @@ impl<'d, T: GeneralInstance4Channel, C: TimerChannel> PwmPin<'d, T, C> {
 /// It is not possible to change the pwm frequency because
 /// the frequency configuration is shared with all four channels.
 pub struct SimplePwmChannel<'d, T: GeneralInstance4Channel> {
-    timer: ManuallyDrop<Timer<'d, T>>,
+    timer: ManuallyDrop<Timer<'d, T, mode::NoIrq>>,
     channel: Channel,
 }
 
@@ -173,7 +174,7 @@ pub struct SimplePwmChannels<'d, T: GeneralInstance4Channel> {
 
 /// Simple PWM driver.
 pub struct SimplePwm<'d, T: GeneralInstance4Channel> {
-    inner: Timer<'d, T>,
+    inner: Timer<'d, T, mode::NoIrq>,
 }
 
 impl<'d, T: GeneralInstance4Channel> SimplePwm<'d, T> {

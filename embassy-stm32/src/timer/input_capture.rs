@@ -11,6 +11,7 @@ pub use super::{Ch1, Ch2, Ch3, Ch4};
 use crate::gpio::{AfType, AnyPin, Pull};
 use crate::interrupt::typelevel::{Binding, Interrupt};
 use crate::time::Hertz;
+use crate::timer::low_level::mode;
 use crate::timer::TimerChannel;
 use crate::Peri;
 
@@ -34,7 +35,7 @@ impl<'d, T: GeneralInstance4Channel, C: TimerChannel> CapturePin<'d, T, C> {
 
 /// Input capture driver.
 pub struct InputCapture<'d, T: GeneralInstance4Channel> {
-    inner: Timer<'d, T>,
+    inner: Timer<'d, T, mode::NoIrq>,
 }
 
 impl<'d, T: GeneralInstance4Channel> InputCapture<'d, T> {

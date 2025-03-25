@@ -9,7 +9,7 @@ use super::simple_pwm::PwmPin;
 use super::{AdvancedInstance4Channel, Ch1, Ch2, Ch3, Ch4, Channel, TimerComplementaryPin};
 use crate::gpio::{AnyPin, OutputType};
 use crate::time::Hertz;
-use crate::timer::low_level::OutputCompareMode;
+use crate::timer::low_level::{mode, OutputCompareMode};
 use crate::timer::TimerChannel;
 use crate::Peri;
 
@@ -40,7 +40,7 @@ impl<'d, T: AdvancedInstance4Channel, C: TimerChannel> ComplementaryPwmPin<'d, T
 
 /// PWM driver with support for standard and complementary outputs.
 pub struct ComplementaryPwm<'d, T: AdvancedInstance4Channel> {
-    inner: Timer<'d, T>,
+    inner: Timer<'d, T, mode::NoIrq>,
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
